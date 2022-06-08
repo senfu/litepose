@@ -15,3 +15,4 @@ import models.pose_supermobilenet
 import models.pose_resnet
 import models.pose_superresnet
 import models.pose_efficient_hrnet
+import models.pose_mobilenet_bifpn
