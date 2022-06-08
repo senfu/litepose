@@ -138,7 +138,7 @@ def do_train(cfg, model, lr_scheduler, data_loader, loss_factory, optimizer, epo
             global_steps = writer_dict['train_global_steps']
             for idx in range(cfg.LOSS.NUM_STAGES):
                 writer.add_scalar(
-                    'train_stage{}_heatmaps_loss'.format(i),
+                    'train_stage{}_heatmaps_loss'.format(idx),
                     heatmaps_loss_meter[idx].val,
                     global_steps
                 )
