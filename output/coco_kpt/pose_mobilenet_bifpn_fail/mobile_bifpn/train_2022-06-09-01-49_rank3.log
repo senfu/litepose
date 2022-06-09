@@ -1,0 +1,6 @@
+2022-06-09 01:49:42,647 => classes: ['__background__', 'person']
+2022-06-09 01:49:42,980 Dataset CocoKeypoints
+    Number of datapoints: 64115
+    Root Location: /dev/shm/pose/data/coco
+    Transforms (if any): None
+    Target Transforms (if any): None
