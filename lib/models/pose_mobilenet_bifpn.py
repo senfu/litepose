@@ -57,16 +57,20 @@ class LitePoseBiFPN(nn.Module):
             self.stage.append(layer)
             self.channel.append(c)
         self.stage = nn.ModuleList(self.stage)
-        self.bifpn = BiFPN(self.channel[-4:], feature_size=self.channel[-1], num_layers=3)
+        self.bifpn = nn.Sequential(
+            BiFPN(64, self.channel[-4:], first_time=True),
+            BiFPN(64, self.channel[-4:], first_time=False),
+        )
         self.out2 = nn.Sequential(
             nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
-            SepConv2d(self.channel[-1], self.channel[-1], 5),
-            nn.Conv2d(self.channel[-1], cfg.MODEL.NUM_JOINTS, 1)
+            convbnrelu(64, 48, 3),
+            nn.Conv2d(48, cfg.MODEL.NUM_JOINTS, 1, 1, 0),
         )
         self.out1 = nn.Sequential(
-            SepConv2d(self.channel[-1], self.channel[-1], 5),
-            nn.Conv2d(self.channel[-1], cfg.MODEL.NUM_JOINTS * 2, 1)
+            nn.Conv2d(64, cfg.MODEL.NUM_JOINTS * 2, 1, 1, 0),
         )
+        self.weight = nn.Parameter(torch.ones(6, dtype=torch.float32), requires_grad=True)
+        self.softmax = nn.Softmax(0)
 
     def forward(self, x):
         x = self.first(x)
@@ -74,9 +78,17 @@ class LitePoseBiFPN(nn.Module):
         for i in range(len(self.stage)):
             tmp = self.stage[i](x_list[-1])
             x_list.append(tmp)
-        x_list = self.bifpn(x_list[-4:])
-        out1 = self.out1(x_list[0])
-        out2 = self.out2(x_list[0])
+        x_list = list(self.bifpn(x_list[-4:]))
+        x_list[1] = F.interpolate(x_list[1], scale_factor=2,  mode='bilinear', align_corners=True)
+        x_list[2] = F.interpolate(x_list[2], scale_factor=4,  mode='bilinear', align_corners=True)
+        x_list[3] = F.interpolate(x_list[3], scale_factor=8,  mode='bilinear', align_corners=True)
+        x_list[4] = F.interpolate(x_list[4], scale_factor=16, mode='bilinear', align_corners=True)
+        x_list[5] = F.interpolate(x_list[5], scale_factor=32, mode='bilinear', align_corners=True)
+        weight = self.softmax(self.weight)
+        x = weight[0] * x_list[0] + weight[1] * x_list[1] + weight[2] * x_list[2] \
+            + weight[3] * x_list[3] + weight[4] * x_list[4] + weight[5] * x_list[5]
+        out1 = self.out1(x)
+        out2 = self.out2(x)
         final_outputs = [out1, out2]
         return final_outputs
 
@@ -90,6 +102,8 @@ def get_pose_net(cfg, is_train=False, cfg_arch=None):
             need_init_state_dict = {}
             state_dict = torch.load(cfg.MODEL.PRETRAINED, map_location=torch.device('cpu'))
             for key, value in state_dict.items():
+                if 'final' in key or 'dconv' in key:
+                    continue
                 need_init_state_dict[key] = value
             try:
                 model.load_state_dict(need_init_state_dict, strict=False)

@@ -99,10 +99,6 @@ def main():
     if args.superconfig is not None:
         with open(args.superconfig, 'r') as f:
            fixed_arch = json.load(f)
-    
-    cfg.defrost()
-    cfg.RANK = args.rank
-    cfg.freeze()
 
     logger, final_output_dir, tb_log_dir = create_logger(
         cfg, args.cfg, 'train'
@@ -111,7 +107,7 @@ def main():
     logger.info(pprint.pformat(args))
     logger.info(cfg)
 
-    if cfg.MODEL.NAME == 'pose_mobilenet' or cfg.MODEL.NAME == 'pose_simplenet':
+    if cfg.MODEL.NAME in ['pose_mobilenet', 'pose_simplenet', 'pose_mobilenet_bifpn']:
         arch_manager = ArchManager(cfg)
         cfg_arch = arch_manager.fixed_sample()
         if fixed_arch is not None:
@@ -128,7 +124,7 @@ def main():
 
     args.distributed = args.world_size > 1 or cfg.MULTIPROCESSING_DISTRIBUTED
 
-    ngpus_per_node = torch.cuda.device_count()
+    ngpus_per_node = 4
     if cfg.MULTIPROCESSING_DISTRIBUTED:
         # Since we have ngpus_per_node processes per node, the total world_size
         # needs to be adjusted accordingly
@@ -194,9 +190,9 @@ def main_worker(
     logger, _ = setup_logger(final_output_dir, args.rank, 'train')
     have_teacher = False
 
-    if cfg.MODEL.NAME == 'pose_mobilenet' or cfg.MODEL.NAME == 'pose_simplenet':
+    if cfg.MODEL.NAME in ['pose_mobilenet', 'pose_simplenet', 'pose_mobilenet_bifpn']:
         model = eval('models.'+cfg.MODEL.NAME+'.get_pose_net')(
-            cfg, is_train=True, cfg_arch = cfg_arch
+            cfg, is_train=True, cfg_arch=cfg_arch
         )
         if args.teacher == True:
             with open('./mobile_configs/search-S.json', 'r') as f:
@@ -319,6 +315,8 @@ def main_worker(
         begin_epoch = checkpoint['epoch']
         best_perf = checkpoint['perf']
         last_epoch = checkpoint['epoch']
+        if 'train_global_steps' in checkpoint:
+            writer_dict['train_global_steps'] = checkpoint['train_global_steps']
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         logger.info("=> loaded checkpoint '{}' (epoch {})".format(
@@ -360,6 +358,7 @@ def main_worker(
                 'best_state_dict': model.module.state_dict(),
                 'perf': perf_indicator,
                 'optimizer': optimizer.state_dict(),
+                'train_global_steps': writer_dict['train_global_steps']
             }, best_model, final_output_dir)
 
     final_model_state_file = os.path.join(

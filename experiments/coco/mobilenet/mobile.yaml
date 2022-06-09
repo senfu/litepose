@@ -3,7 +3,7 @@ DATA_DIR: ''
 GPUS: (0,)
 LOG_DIR: log
 OUTPUT_DIR: output
-PRINT_FREQ: 100
+PRINT_FREQ: 50
 CUDNN:
   BENCHMARK: True
   DETERMINISTIC: False
@@ -23,7 +23,7 @@ DATASET:
   MAX_TRANSLATE: 40
   MIN_SCALE: 0.75
   NUM_JOINTS: 17
-  ROOT: '/dataset/coco'
+  ROOT: '/dev/shm/pose/data/coco'
   TEST: val2017
   TRAIN: train2017
 DEBUG:
@@ -76,7 +76,7 @@ TRAIN:
   END_EPOCH: 500
   GAMMA1: 0.99
   GAMMA2: 0.0
-  IMAGES_PER_GPU: 16
+  IMAGES_PER_GPU: 32
   LR: 0.004
   LR_FACTOR: 0.1
   LR_STEP: [350, 480]
@@ -86,4 +86,4 @@ TRAIN:
   RESUME: False
   SHUFFLE: True
   WD: 0.0001
-WORKERS: 4
+WORKERS: 8

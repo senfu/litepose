@@ -56,7 +56,7 @@ class SuperSepConv2d(nn.Module):
         conv = [
             nn.Conv2d(inp, inp, ker, stride, ker // 2, groups=inp, bias=False),
             SuperBatchNorm2d(inp),
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=False),
             nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
         ]
         self.conv = nn.Sequential(*conv)
@@ -115,7 +115,7 @@ class SuperFusedMBConv(nn.Module):
         self.inv = nn.Sequential(
             SuperConv2d(inp, feature_dim, k, s, k // 2, bias=False),
             SuperBatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.point_conv = nn.Sequential(
             SuperConv2d(feature_dim, oup, 1, 1, 0, bias=False),
@@ -146,12 +146,12 @@ class SuperInvBottleneck(nn.Module):
         self.inv = nn.Sequential(
             SuperConv2d(inplanes, feature_dim, 1, 1, 0, bias=False),
             SuperBatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.depth_conv = nn.Sequential(
             nn.Conv2d(feature_dim, feature_dim, self.ker_size, stride, self.ker_size // 2, groups=feature_dim, bias=False),
             SuperBatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.point_conv = nn.Sequential(
             SuperConv2d(feature_dim, planes, 1, 1, 0, bias=False),

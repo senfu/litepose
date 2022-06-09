@@ -107,7 +107,7 @@ class SuperLitePose(nn.Module):
             deconv_refined.append(SuperUpConv(self.inplanes, planes, k=kernel))
             deconv_raw.append(SuperUpConv(self.channel[-i-2], planes, k=kernel))
             layers.append(SuperBatchNorm2d(planes))
-            layers.append(nn.ReLU(inplace=True))
+            layers.append(nn.ReLU(inplace=False))
             self.inplanes = planes
             deconv_bnrelu.append(nn.Sequential(*layers))
 

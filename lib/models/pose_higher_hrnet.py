@@ -38,7 +38,7 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
         self.downsample = downsample
@@ -77,7 +77,7 @@ class Bottleneck(nn.Module):
                                bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion,
                                   momentum=BN_MOMENTUM)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
         self.downsample = downsample
         self.stride = stride
 
@@ -268,7 +268,7 @@ class PoseHigherResolutionNet(nn.Module):
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1,
                                bias=False)
         self.bn2 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
         self.layer1 = self._make_layer(Bottleneck, extra['STEM_INPLANES'], 4)
 
         self.stage2_cfg = cfg['MODEL']['EXTRA']['STAGE2']
@@ -369,7 +369,7 @@ class PoseHigherResolutionNet(nn.Module):
                     output_padding=output_padding,
                     bias=False),
                 nn.BatchNorm2d(output_channels, momentum=BN_MOMENTUM),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=False)
             ))
             for _ in range(cfg['MODEL']['EXTRA']['DECONV']['NUM_BASIC_BLOCKS']):
                 layers.append(nn.Sequential(
@@ -410,7 +410,7 @@ class PoseHigherResolutionNet(nn.Module):
                                   1,
                                   bias=False),
                         nn.BatchNorm2d(num_channels_cur_layer[i]),
-                        nn.ReLU(inplace=True)))
+                        nn.ReLU(inplace=False)))
                 else:
                     transition_layers.append(None)
             else:
@@ -423,7 +423,7 @@ class PoseHigherResolutionNet(nn.Module):
                         nn.Conv2d(
                             inchannels, outchannels, 3, 2, 1, bias=False),
                         nn.BatchNorm2d(outchannels),
-                        nn.ReLU(inplace=True)))
+                        nn.ReLU(inplace=False)))
                 transition_layers.append(nn.Sequential(*conv3x3s))
 
         return nn.ModuleList(transition_layers)

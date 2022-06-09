@@ -9,7 +9,7 @@ def conv(in_channels, out_channels, kernel_size=3, padding=1, bn=True, dilation=
     if bn:
         modules.append(nn.BatchNorm2d(out_channels))
     if relu:
-        modules.append(nn.ReLU(inplace=True))
+        modules.append(nn.ReLU(inplace=False))
     return nn.Sequential(*modules)
 
 def conv_bn(inp, oup, stride, use_batch_norm=True):
@@ -19,35 +19,35 @@ def conv_bn(inp, oup, stride, use_batch_norm=True):
         return nn.Sequential(
             nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
             nn.BatchNorm2d(oup),
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=False),
         )
     else:
         return nn.Sequential(
             nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=False),
         )
 
 def conv1(in_channels,out_channels,stride):
     return nn.Sequential(
         nn.Conv2d(in_channels,out_channels,3,stride,1,bias=False),
         nn.BatchNorm2d(out_channels),
-        nn.ReLU6(inplace=True),
+        nn.ReLU6(inplace=False),
     )
 
 def conv_pw(in_channels, out_channels):
     return nn.Sequential(
         nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False),
         nn.BatchNorm2d(out_channels),
-        nn.ReLU6(inplace=True),
+        nn.ReLU6(inplace=False),
     )
 
 def conv_dw_no_bn(in_channels, out_channels, kernel_size=3, padding=1, stride=1, dilation=1):
     return nn.Sequential(
         nn.Conv2d(in_channels, in_channels, kernel_size, stride, padding, dilation=dilation, groups=in_channels, bias=False),
-        nn.ELU(inplace=True),
+        nn.ELU(inplace=False),
 
         nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False),
-        nn.ELU(inplace=True),
+        nn.ELU(inplace=False),
     )
 
 def conv_bn_act(in_, out_, kernel_size,

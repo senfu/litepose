@@ -37,7 +37,7 @@ def do_train(cfg, model, lr_scheduler, data_loader, loss_factory, optimizer, epo
     model.train()
 
     end = time.time()
-
+    
     for i, (images, heatmaps, masks, joints) in enumerate(data_loader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -120,18 +120,18 @@ def do_train(cfg, model, lr_scheduler, data_loader, loss_factory, optimizer, epo
 
         if i % cfg.PRINT_FREQ == 0 and cfg.RANK == 0:
             msg = 'Epoch: [{0}][{1}/{2}]\t' \
-                  'Time: {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\t' \
-                  'Speed: {speed:.1f} samples/s\t' \
-                  'Data: {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
-                  '{heatmaps_loss}{push_loss}{pull_loss}'.format(
-                      epoch, i, len(data_loader),
-                      batch_time=batch_time,
-                      speed=images.size(0)/batch_time.val,
-                      data_time=data_time,
-                      heatmaps_loss=_get_loss_info(heatmaps_loss_meter, 'heatmaps'),
-                      push_loss=_get_loss_info(push_loss_meter, 'push'),
-                      pull_loss=_get_loss_info(pull_loss_meter, 'pull')
-                  )
+                'Time: {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\t' \
+                'Speed: {speed:.1f} samples/s\t' \
+                'Data: {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
+                '{heatmaps_loss}{push_loss}{pull_loss}'.format(
+                    epoch, i, len(data_loader),
+                    batch_time=batch_time,
+                    speed=images.size(0)/batch_time.val,
+                    data_time=data_time,
+                    heatmaps_loss=_get_loss_info(heatmaps_loss_meter, 'heatmaps'),
+                    push_loss=_get_loss_info(push_loss_meter, 'push'),
+                    pull_loss=_get_loss_info(pull_loss_meter, 'pull')
+                )
             logger.info(msg)
 
             writer = writer_dict['writer']

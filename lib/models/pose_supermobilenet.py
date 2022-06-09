@@ -124,7 +124,7 @@ class SuperLitePose(nn.Module):
                     output_padding=output_padding,
                     bias=False))
             layers.append(SuperBatchNorm2d(planes)) 
-            layers.append(nn.ReLU(inplace=True))
+            layers.append(nn.ReLU(inplace=False))
             self.inplanes = planes
             deconv_bnrelu.append(nn.Sequential(*layers))
 

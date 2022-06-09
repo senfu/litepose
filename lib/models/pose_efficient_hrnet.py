@@ -25,7 +25,7 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes, momentum=BN_MOMENTUM)
         self.downsample = downsample
@@ -340,13 +340,13 @@ class PoseHigherResolutionNet(nn.Module):
             int(math.ceil(num_channels[i] * (pow(1.2455,cfg.MODEL.SCALE_FACTOR)) * block.expansion))  for i in range(len(num_channels))
         ]
         if cfg.MODEL.WIDTH_MULT == 1 and cfg.MODEL.DEPTH_MULT == 1:
-            self.trans1_branch1 = nn.Sequential(nn.Conv2d(24,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=True))
-            self.trans1_branch2 = nn.Sequential(nn.Conv2d(40,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=True)) 
+            self.trans1_branch1 = nn.Sequential(nn.Conv2d(24,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=False))
+            self.trans1_branch2 = nn.Sequential(nn.Conv2d(40,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=False)) 
         else:               
             self.trans1_branch1 = nn.Sequential(nn.Conv2d(int(_make_divisible(24*cfg.MODEL.WIDTH_MULT)),int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1), 
-                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans1_branch2 = nn.Sequential(nn.Conv2d(int(_make_divisible(40*cfg.MODEL.WIDTH_MULT)),int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1), 
-                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
 
         self.stage2, pre_stage_channels = self._make_stage(
             self.stage2_cfg, num_channels, cfg) #should happen automatically
@@ -358,16 +358,16 @@ class PoseHigherResolutionNet(nn.Module):
             int(math.ceil(num_channels[i] * (pow(1.2455,cfg.MODEL.SCALE_FACTOR)) * block.expansion))  for i in range(len(num_channels))
         ]
         if cfg.MODEL.WIDTH_MULT == 1 and cfg.MODEL.DEPTH_MULT == 1:
-            self.trans2_branch1 = nn.Sequential(nn.Conv2d(32,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=True))
-            self.trans2_branch2 = nn.Sequential(nn.Conv2d(64,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
-            self.trans2_branch3 = nn.Sequential(nn.Conv2d(112,128,3,1,1), nn.BatchNorm2d(128), nn.ReLU(inplace=True))
+            self.trans2_branch1 = nn.Sequential(nn.Conv2d(32,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=False))
+            self.trans2_branch2 = nn.Sequential(nn.Conv2d(64,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=False))
+            self.trans2_branch3 = nn.Sequential(nn.Conv2d(112,128,3,1,1), nn.BatchNorm2d(128), nn.ReLU(inplace=False))
         else:
             self.trans2_branch1 = nn.Sequential(nn.Conv2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR))), int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans2_branch2 = nn.Sequential(nn.Conv2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR))), int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans2_branch3 = nn.Sequential(nn.Conv2d(int(_make_divisible(112*cfg.MODEL.WIDTH_MULT)), int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
 
         self.stage3, pre_stage_channels = self._make_stage(
             self.stage3_cfg, num_channels, cfg) #should happen automatically
@@ -379,19 +379,19 @@ class PoseHigherResolutionNet(nn.Module):
             int(math.ceil(num_channels[i] * (pow(1.2455,cfg.MODEL.SCALE_FACTOR)) * block.expansion))  for i in range(len(num_channels))
         ]
         if cfg.MODEL.WIDTH_MULT == 1 and cfg.MODEL.DEPTH_MULT == 1:
-            self.trans3_branch1 = nn.Sequential(nn.Conv2d(32,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=True))
-            self.trans3_branch2 = nn.Sequential(nn.Conv2d(64,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
-            self.trans3_branch3 = nn.Sequential(nn.Conv2d(128,128,3,1,1), nn.BatchNorm2d(128), nn.ReLU(inplace=True))
-            self.trans3_branch4 = nn.Sequential(nn.Conv2d(320,256,3,1,1), nn.BatchNorm2d(256), nn.ReLU(inplace=True))
+            self.trans3_branch1 = nn.Sequential(nn.Conv2d(32,32,3,1,1), nn.BatchNorm2d(32), nn.ReLU(inplace=False))
+            self.trans3_branch2 = nn.Sequential(nn.Conv2d(64,64,3,1,1), nn.BatchNorm2d(64), nn.ReLU(inplace=False))
+            self.trans3_branch3 = nn.Sequential(nn.Conv2d(128,128,3,1,1), nn.BatchNorm2d(128), nn.ReLU(inplace=False))
+            self.trans3_branch4 = nn.Sequential(nn.Conv2d(320,256,3,1,1), nn.BatchNorm2d(256), nn.ReLU(inplace=False))
         else:
             self.trans3_branch1 = nn.Sequential(nn.Conv2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR))), int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(32*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans3_branch2 = nn.Sequential(nn.Conv2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR))), int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(64*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans3_branch3 = nn.Sequential(nn.Conv2d(int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR))), int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(128*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
             self.trans3_branch4 = nn.Sequential(nn.Conv2d(int(_make_divisible(320*cfg.MODEL.WIDTH_MULT)), int(math.ceil(256*pow(1.2455,cfg.MODEL.SCALE_FACTOR))),3,1,1),
-                                                nn.BatchNorm2d(int(math.ceil(256*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=True))
+                                                nn.BatchNorm2d(int(math.ceil(256*pow(1.2455,cfg.MODEL.SCALE_FACTOR)))), nn.ReLU(inplace=False))
         
         self.stage4, pre_stage_channels = self._make_stage(
             self.stage4_cfg, num_channels, cfg, multi_scale_output=False) #should happen automatically
@@ -462,7 +462,7 @@ class PoseHigherResolutionNet(nn.Module):
                     output_padding=output_padding,
                     bias=False),
                 nn.BatchNorm2d(output_channels, momentum=BN_MOMENTUM),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=False)
             ))
             for _ in range(cfg.MODEL.EXTRA.DECONV.NUM_BASIC_BLOCKS):
                 layers.append(nn.Sequential(

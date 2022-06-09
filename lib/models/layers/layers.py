@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import math
+
 def _make_divisible(v, divisor, min_value=None):
     if min_value is None:
         min_value = divisor
@@ -20,7 +22,7 @@ class convbnrelu(nn.Sequential):
         super(convbnrelu, self).__init__(
             nn.Conv2d(inp, oup, ker, stride, ker // 2, groups=groups, bias=False),
             nn.BatchNorm2d(oup),
-            nn.ReLU6(inplace=True)
+            nn.ReLU6(inplace=False)
         )
 
 class Bottleneck(nn.Module):
@@ -38,7 +40,7 @@ class Bottleneck(nn.Module):
         self.bn2 = nn.BatchNorm2d(mid_dim)
         self.conv3 = nn.Conv2d(mid_dim, oup, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(oup)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         residual = x
@@ -72,7 +74,7 @@ class FusedMBConv(nn.Module):
         self.inv = nn.Sequential(
             nn.Conv2d(inp, feature_dim, k, s, k // 2, bias=False),
             nn.BatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.point_conv = nn.Sequential(
             nn.Conv2d(feature_dim, oup, 1, 1, 0, bias=False),
@@ -95,12 +97,12 @@ class InvBottleneck(nn.Module):
         self.inv = nn.Sequential(
             nn.Conv2d(inplanes, feature_dim, 1, 1, 0, bias=False),
             nn.BatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.depth_conv = nn.Sequential(
             nn.Conv2d(feature_dim, feature_dim, ker, stride, ker // 2, groups=feature_dim, bias=False),
             nn.BatchNorm2d(feature_dim),
-            nn.ReLU6(inplace = True)
+            nn.ReLU6(inplace = False)
         )
         self.point_conv = nn.Sequential(
             nn.Conv2d(feature_dim, planes, 1, 1, 0, bias=False),
@@ -123,7 +125,7 @@ class SepConv2d(nn.Module):
         conv = [
             nn.Conv2d(inp, inp, ker, stride, ker // 2, groups=inp, bias=False),
             nn.BatchNorm2d(inp),
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=False),
             nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
         ]
         self.conv = nn.Sequential(*conv)
@@ -133,129 +135,436 @@ class SepConv2d(nn.Module):
         return output
 
 
+# from https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch/blob/master/efficientdet/model.py
+class Conv2dStaticSamePadding(nn.Module):
+    """
+    created by Zylo117
+    The real keras/tensorflow conv2d with same padding
+    """
+
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, bias=True, groups=1, dilation=1, **kwargs):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride,
+                              bias=bias, groups=groups)
+        self.stride = self.conv.stride
+        self.kernel_size = self.conv.kernel_size
+        self.dilation = self.conv.dilation
+
+        if isinstance(self.stride, int):
+            self.stride = [self.stride] * 2
+        elif len(self.stride) == 1:
+            self.stride = [self.stride[0]] * 2
+
+        if isinstance(self.kernel_size, int):
+            self.kernel_size = [self.kernel_size] * 2
+        elif len(self.kernel_size) == 1:
+            self.kernel_size = [self.kernel_size[0]] * 2
+
+    def forward(self, x):
+        h, w = x.shape[-2:]
+        
+        extra_h = (math.ceil(w / self.stride[1]) - 1) * self.stride[1] - w + self.kernel_size[1]
+        extra_v = (math.ceil(h / self.stride[0]) - 1) * self.stride[0] - h + self.kernel_size[0]
+        
+        left = extra_h // 2
+        right = extra_h - left
+        top = extra_v // 2
+        bottom = extra_v - top
+
+        x = F.pad(x, [left, right, top, bottom])
+
+        x = self.conv(x)
+        return x
 
 
-# from https://github.com/tristandb/EfficientDet-PyTorch/blob/b86f3661c9167ed9394bdfd430ea4673ad5177c7/bifpn.py
-class DepthwiseConvBlock(nn.Module):
+class MaxPool2dStaticSamePadding(nn.Module):
     """
-    Depthwise seperable convolution. 
-    
-    
+    created by Zylo117
+    The real keras/tensorflow MaxPool2d with same padding
     """
-    def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, padding=0, dilation=1, freeze_bn=False):
-        super(DepthwiseConvBlock,self).__init__()
-        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size, stride, 
-                               padding, dilation, groups=in_channels, bias=False)
-        self.pointwise = nn.Conv2d(in_channels, out_channels, kernel_size=1, 
-                                   stride=1, padding=0, dilation=1, groups=1, bias=False)
-        
-        
-        self.bn = nn.BatchNorm2d(out_channels, momentum=0.9997, eps=4e-5)
-        self.act = nn.ReLU()
-        
-    def forward(self, inputs):
-        x = self.depthwise(inputs)
-        x = self.pointwise(x)
-        x = self.bn(x)
-        return self.act(x)
-    
-class ConvBlock(nn.Module):
-    """
-    Convolution block with Batch Normalization and ReLU activation.
-    
-    """
-    def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, padding=0, dilation=1, freeze_bn=False):
-        super(ConvBlock,self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
-        self.bn = nn.BatchNorm2d(out_channels, momentum=0.9997, eps=4e-5)
-        self.act = nn.ReLU()
 
-    def forward(self, inputs):
-        x = self.conv(inputs)
-        x = self.bn(x)
-        return self.act(x)
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.pool = nn.MaxPool2d(*args, **kwargs)
+        self.stride = self.pool.stride
+        self.kernel_size = self.pool.kernel_size
 
-class BiFPNBlock(nn.Module):
-    """
-    Bi-directional Feature Pyramid Network
-    """
-    def __init__(self, feature_size=64, epsilon=0.0001):
-        super(BiFPNBlock, self).__init__()
-        self.epsilon = epsilon
-        
-        self.p2_td = DepthwiseConvBlock(feature_size, feature_size)
-        self.p3_td = DepthwiseConvBlock(feature_size, feature_size)
-        self.p4_td = DepthwiseConvBlock(feature_size, feature_size)
-        self.p5_td = DepthwiseConvBlock(feature_size, feature_size)
-        self.p6_td = DepthwiseConvBlock(feature_size, feature_size)
-        
-        self.p3_out = DepthwiseConvBlock(feature_size, feature_size)
-        self.p4_out = DepthwiseConvBlock(feature_size, feature_size)
-        self.p5_out = DepthwiseConvBlock(feature_size, feature_size)
-        self.p6_out = DepthwiseConvBlock(feature_size, feature_size)
-        self.p7_out = DepthwiseConvBlock(feature_size, feature_size)
-        
-        # TODO: Init weights
-        self.w1 = nn.Parameter(torch.Tensor(2, 5))
-        self.w1_relu = nn.ReLU()
-        self.w2 = nn.Parameter(torch.Tensor(3, 5))
-        self.w2_relu = nn.ReLU()
-    
-    def forward(self, inputs):
-        p2_x, p3_x, p4_x, p5_x, p6_x, p7_x = inputs
-        
-        # Calculate Top-Down Pathway
-        w1 = self.w1_relu(self.w1)
-        w1 /= torch.sum(w1, dim=0) + self.epsilon
-        w2 = self.w2_relu(self.w2)
-        w2 /= torch.sum(w2, dim=0) + self.epsilon
-        
-        p7_td = p7_x
-        p6_td = self.p6_td(w1[0, 0] * p6_x + w1[1, 0] * F.interpolate(p7_td, scale_factor=2))        
-        p5_td = self.p5_td(w1[0, 1] * p5_x + w1[1, 1] * F.interpolate(p6_td, scale_factor=2))
-        p4_td = self.p4_td(w1[0, 2] * p4_x + w1[1, 2] * F.interpolate(p5_td, scale_factor=2))
-        p3_td = self.p3_td(w1[0, 3] * p3_x + w1[1, 3] * F.interpolate(p4_td, scale_factor=2))
-        p2_td = self.p2_td(w1[0, 4] * p2_x + w1[1, 4] * F.interpolate(p3_td, scale_factor=2))
-        
-        # Calculate Bottom-Up Pathway
-        p2_out = p2_td
-        p3_out = self.p3_out(w2[0, 0] * p3_x + w2[1, 0] * p3_td + w2[2, 0] * nn.Upsample(scale_factor=0.5)(p2_out))
-        p4_out = self.p4_out(w2[0, 1] * p4_x + w2[1, 1] * p4_td + w2[2, 1] * nn.Upsample(scale_factor=0.5)(p3_out))
-        p5_out = self.p5_out(w2[0, 2] * p5_x + w2[1, 2] * p5_td + w2[2, 2] * nn.Upsample(scale_factor=0.5)(p4_out))
-        p6_out = self.p6_out(w2[0, 3] * p6_x + w2[1, 3] * p6_td + w2[2, 3] * nn.Upsample(scale_factor=0.5)(p5_out))
-        p7_out = self.p7_out(w2[0, 4] * p7_x + w2[1, 4] * p7_td + w2[2, 4] * nn.Upsample(scale_factor=0.5)(p6_out))
+        if isinstance(self.stride, int):
+            self.stride = [self.stride] * 2
+        elif len(self.stride) == 1:
+            self.stride = [self.stride[0]] * 2
 
-        return [p2_out, p3_out, p4_out, p5_out, p6_out, p7_out]
-    
+        if isinstance(self.kernel_size, int):
+            self.kernel_size = [self.kernel_size] * 2
+        elif len(self.kernel_size) == 1:
+            self.kernel_size = [self.kernel_size[0]] * 2
+
+    def forward(self, x):
+        h, w = x.shape[-2:]
+        
+        extra_h = (math.ceil(w / self.stride[1]) - 1) * self.stride[1] - w + self.kernel_size[1]
+        extra_v = (math.ceil(h / self.stride[0]) - 1) * self.stride[0] - h + self.kernel_size[0]
+
+        left = extra_h // 2
+        right = extra_h - left
+        top = extra_v // 2
+        bottom = extra_v - top
+
+        x = F.pad(x, [left, right, top, bottom])
+
+        x = self.pool(x)
+        return x
+
+
+class SeparableConvBlock(nn.Module):
+    """
+    created by Zylo117
+    """
+
+    def __init__(self, in_channels, out_channels=None, norm=True, activation=False):
+        super(SeparableConvBlock, self).__init__()
+        if out_channels is None:
+            out_channels = in_channels
+
+        # Q: whether separate conv
+        #  share bias between depthwise_conv and pointwise_conv
+        #  or just pointwise_conv apply bias.
+        # A: Confirmed, just pointwise_conv applies bias, depthwise_conv has no bias.
+
+        self.depthwise_conv = Conv2dStaticSamePadding(in_channels, in_channels,
+                                                      kernel_size=3, stride=1, groups=in_channels, bias=False)
+        self.pointwise_conv = Conv2dStaticSamePadding(in_channels, out_channels, kernel_size=1, stride=1)
+
+        self.norm = norm
+        if self.norm:
+            # Warning: pytorch momentum is different from tensorflow's, momentum_pytorch = 1 - momentum_tensorflow
+            self.bn = nn.BatchNorm2d(num_features=out_channels, momentum=0.01, eps=1e-3)
+
+        self.activation = activation
+        if self.activation:
+            self.relu = nn.ReLU()
+
+    def forward(self, x):
+        x = self.depthwise_conv(x)
+        x = self.pointwise_conv(x)
+
+        if self.norm:
+            x = self.bn(x)
+
+        if self.activation:
+            x = self.relu(x)
+
+        return x
+
+
 class BiFPN(nn.Module):
-    def __init__(self, size, feature_size=64, num_layers=2, epsilon=0.0001):
+    """
+    modified by Zylo117
+    """
+
+    def __init__(self, num_channels, conv_channels, first_time=False, epsilon=1e-4, attention=True, use_p8=False):
+        """
+        Args:
+            num_channels:
+            conv_channels:
+            first_time: whether the input comes directly from the efficientnet,
+                        if True, downchannel it first, and downsample P5 to generate P6 then P7
+            epsilon: epsilon of fast weighted attention sum of BiFPN, not the BN's epsilon
+        """
         super(BiFPN, self).__init__()
-        self.p2 = nn.Conv2d(size[0], feature_size, kernel_size=1, stride=1, padding=0)
-        self.p3 = nn.Conv2d(size[1], feature_size, kernel_size=1, stride=1, padding=0)
-        self.p4 = nn.Conv2d(size[2], feature_size, kernel_size=1, stride=1, padding=0)
-        self.p5 = nn.Conv2d(size[3], feature_size, kernel_size=1, stride=1, padding=0)
-        
-        # p6 is obtained via a 3x3 stride-2 conv on C5
-        self.p6 = nn.Conv2d(size[3], feature_size, kernel_size=3, stride=2, padding=1)
-        
-        # p7 is computed by applying ReLU followed by a 3x3 stride-2 conv on p6
-        self.p7 = ConvBlock(feature_size, feature_size, kernel_size=3, stride=2, padding=1)
+        self.epsilon = epsilon
+        self.use_p8 = use_p8
 
-        bifpns = []
-        for _ in range(num_layers):
-            bifpns.append(BiFPNBlock(feature_size))
-        self.bifpn = nn.Sequential(*bifpns)
-    
+        # Conv layers
+        self.conv6_up = SeparableConvBlock(num_channels)
+        self.conv5_up = SeparableConvBlock(num_channels)
+        self.conv4_up = SeparableConvBlock(num_channels)
+        self.conv3_up = SeparableConvBlock(num_channels)
+        self.conv2_up = SeparableConvBlock(num_channels)
+
+        self.conv3_down = SeparableConvBlock(num_channels)
+        self.conv4_down = SeparableConvBlock(num_channels)
+        self.conv5_down = SeparableConvBlock(num_channels)
+        self.conv6_down = SeparableConvBlock(num_channels)
+        self.conv7_down = SeparableConvBlock(num_channels)
+        if use_p8:
+            self.conv7_up = SeparableConvBlock(num_channels)
+            self.conv8_down = SeparableConvBlock(num_channels)
+
+        # Feature scaling layers
+        self.p6_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+        self.p5_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+        self.p4_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+        self.p3_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+        self.p2_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+
+        self.p3_downsample = MaxPool2dStaticSamePadding(3, 2)
+        self.p4_downsample = MaxPool2dStaticSamePadding(3, 2)
+        self.p5_downsample = MaxPool2dStaticSamePadding(3, 2)
+        self.p6_downsample = MaxPool2dStaticSamePadding(3, 2)
+        self.p7_downsample = MaxPool2dStaticSamePadding(3, 2)
+        if use_p8:
+            self.p7_upsample = nn.Upsample(scale_factor=2, mode='nearest')
+            self.p8_downsample = MaxPool2dStaticSamePadding(3, 2)
+
+        self.relu = nn.ReLU()
+
+        self.first_time = first_time
+        if self.first_time:
+            self.p5_down_channel = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[3], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+            self.p4_down_channel = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[2], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+            self.p3_down_channel = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[1], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+            self.p2_down_channel = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[0], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+
+            self.p5_to_p6 = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[3], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+                MaxPool2dStaticSamePadding(3, 2)
+            )
+            self.p6_to_p7 = nn.Sequential(
+                MaxPool2dStaticSamePadding(3, 2)
+            )
+            if use_p8:
+                self.p7_to_p8 = nn.Sequential(
+                    MaxPool2dStaticSamePadding(3, 2)
+                )
+
+            self.p3_down_channel_2 = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[1], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+            self.p4_down_channel_2 = nn.Sequential(
+                Conv2dStaticSamePadding(conv_channels[2], num_channels, 1),
+                nn.BatchNorm2d(num_channels, momentum=0.01, eps=1e-3),
+            )
+
+        # Weight
+        self.p6_w1 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p6_w1_relu = nn.ReLU()
+        self.p5_w1 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p5_w1_relu = nn.ReLU()
+        self.p4_w1 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p4_w1_relu = nn.ReLU()
+        self.p3_w1 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p3_w1_relu = nn.ReLU()
+        self.p2_w1 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p2_w1_relu = nn.ReLU()
+
+        self.p3_w2 = nn.Parameter(torch.ones(3, dtype=torch.float32), requires_grad=True)
+        self.p3_w2_relu = nn.ReLU()
+        self.p4_w2 = nn.Parameter(torch.ones(3, dtype=torch.float32), requires_grad=True)
+        self.p4_w2_relu = nn.ReLU()
+        self.p5_w2 = nn.Parameter(torch.ones(3, dtype=torch.float32), requires_grad=True)
+        self.p5_w2_relu = nn.ReLU()
+        self.p6_w2 = nn.Parameter(torch.ones(3, dtype=torch.float32), requires_grad=True)
+        self.p6_w2_relu = nn.ReLU()
+        self.p7_w2 = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+        self.p7_w2_relu = nn.ReLU()
+
+        self.attention = attention
+
     def forward(self, inputs):
-        c2, c3, c4, c5 = inputs
-        
-        # Calculate the input column of BiFPN
-        p2_x = self.p2(c2)
-        p3_x = self.p3(c3)        
-        p4_x = self.p4(c4)
-        p5_x = self.p5(c5)
-        p6_x = self.p6(c5)
-        p7_x = self.p7(p6_x)
+        """
+        illustration of a minimal bifpn unit
+            P7_0 -------------------------> P7_2 -------->
+               |-------------|                ↑
+                             ↓                |
+            P6_0 ---------> P6_1 ---------> P6_2 -------->
+               |-------------|--------------↑ ↑
+                             ↓                |
+            P5_0 ---------> P5_1 ---------> P5_2 -------->
+               |-------------|--------------↑ ↑
+                             ↓                |
+            P4_0 ---------> P4_1 ---------> P4_2 -------->
+               |-------------|--------------↑ ↑
+                             |--------------↓ |
+            P3_0 -------------------------> P3_2 -------->
+        """
 
-        features = [p2_x, p3_x, p4_x, p5_x, p6_x, p7_x]
-        return self.bifpn(features)
+        # downsample channels using same-padding conv2d to target phase's if not the same
+        # judge: same phase as target,
+        # if same, pass;
+        # elif earlier phase, downsample to target phase's by pooling
+        # elif later phase, upsample to target phase's by nearest interpolation
+
+        if self.attention:
+            outs = self._forward_fast_attention(inputs)
+        else:
+            outs = self._forward(inputs)
+
+        return outs
+
+    def _forward_fast_attention(self, inputs):
+        if self.first_time:
+            p2, p3, p4, p5 = inputs
+
+            p6_in = self.p5_to_p6(p5)
+            p7_in = self.p6_to_p7(p6_in)
+
+            p2_in = self.p2_down_channel(p2)
+            p3_in = self.p3_down_channel(p3)
+            p4_in = self.p4_down_channel(p4)
+            p5_in = self.p5_down_channel(p5)
+
+        else:
+            p2_in, p3_in, p4_in, p5_in, p6_in, p7_in = inputs
+
+        # P7_0 to P7_2
+
+        # Weights for P6_0 and P7_0 to P6_1
+        p6_w1 = self.p6_w1_relu(self.p6_w1)
+        weight = p6_w1 / (torch.sum(p6_w1, dim=0) + self.epsilon)
+        # Connections for P6_0 and P7_0 to P6_1 respectively
+        p6_up = self.conv6_up(self.relu(weight[0] * p6_in + weight[1] * self.p6_upsample(p7_in)))
+
+        # Weights for P5_0 and P6_1 to P5_1
+        p5_w1 = self.p5_w1_relu(self.p5_w1)
+        weight = p5_w1 / (torch.sum(p5_w1, dim=0) + self.epsilon)
+        # Connections for P5_0 and P6_1 to P5_1 respectively
+        p5_up = self.conv5_up(self.relu(weight[0] * p5_in + weight[1] * self.p5_upsample(p6_up)))
+
+        # Weights for P4_0 and P5_1 to P4_1
+        p4_w1 = self.p4_w1_relu(self.p4_w1)
+        weight = p4_w1 / (torch.sum(p4_w1, dim=0) + self.epsilon)
+        # Connections for P4_0 and P5_1 to P4_1 respectively
+        p4_up = self.conv4_up(self.relu(weight[0] * p4_in + weight[1] * self.p4_upsample(p5_up)))
+
+        # Weights for P3_0 and P4_1 to P3_2
+        p3_w1 = self.p3_w1_relu(self.p3_w1)
+        weight = p3_w1 / (torch.sum(p3_w1, dim=0) + self.epsilon)
+        # Connections for P3_0 and P4_1 to P3_2 respectively
+        p3_up = self.conv3_up(self.relu(weight[0] * p3_in + weight[1] * self.p3_upsample(p4_up)))
+
+        # Weights for P2_0 and P3_1 to P2_2
+        p2_w1 = self.p2_w1_relu(self.p2_w1)
+        weight = p2_w1 / (torch.sum(p2_w1, dim=0) + self.epsilon)
+        # Connections for P2_0 and P3_1 to P2_2 respectively
+        p2_out = self.conv2_up(self.relu(weight[0] * p2_in + weight[1] * self.p2_upsample(p3_up)))
+
+        if self.first_time:
+            p3_in = self.p3_down_channel_2(p3)
+            p4_in = self.p4_down_channel_2(p4)
+
+        # Weights for P3_0, P3_1 and P2_2 to P3_2
+        p3_w2 = self.p3_w2_relu(self.p3_w2)
+        weight = p3_w2 / (torch.sum(p3_w2, dim=0) + self.epsilon)
+        # Connections for P3_0, P3_1 and P2_2 to P3_2 respectively
+        p3_out = self.conv4_down(
+            self.relu(weight[0] * p3_in + weight[1] * p3_up + weight[2] * self.p3_downsample(p2_out)))
+
+        # Weights for P4_0, P4_1 and P3_2 to P4_2
+        p4_w2 = self.p4_w2_relu(self.p4_w2)
+        weight = p4_w2 / (torch.sum(p4_w2, dim=0) + self.epsilon)
+        # Connections for P4_0, P4_1 and P3_2 to P4_2 respectively
+        p4_out = self.conv4_down(
+            self.relu(weight[0] * p4_in + weight[1] * p4_up + weight[2] * self.p4_downsample(p3_out)))
+
+        # Weights for P5_0, P5_1 and P4_2 to P5_2
+        p5_w2 = self.p5_w2_relu(self.p5_w2)
+        weight = p5_w2 / (torch.sum(p5_w2, dim=0) + self.epsilon)
+        # Connections for P5_0, P5_1 and P4_2 to P5_2 respectively
+        p5_out = self.conv5_down(
+            self.relu(weight[0] * p5_in + weight[1] * p5_up + weight[2] * self.p5_downsample(p4_out)))
+
+        # Weights for P6_0, P6_1 and P5_2 to P6_2
+        p6_w2 = self.p6_w2_relu(self.p6_w2)
+        weight = p6_w2 / (torch.sum(p6_w2, dim=0) + self.epsilon)
+        # Connections for P6_0, P6_1 and P5_2 to P6_2 respectively
+        p6_out = self.conv6_down(
+            self.relu(weight[0] * p6_in + weight[1] * p6_up + weight[2] * self.p6_downsample(p5_out)))
+
+        # Weights for P7_0 and P6_2 to P7_2
+        p7_w2 = self.p7_w2_relu(self.p7_w2)
+        weight = p7_w2 / (torch.sum(p7_w2, dim=0) + self.epsilon)
+        # Connections for P7_0 and P6_2 to P7_2
+        p7_out = self.conv7_down(self.relu(weight[0] * p7_in + weight[1] * self.p7_downsample(p6_out)))
+
+        return p2_out, p3_out, p4_out, p5_out, p6_out, p7_out
+
+    def _forward(self, inputs):
+        raise NotImplementedError
+        if self.first_time:
+            p3, p4, p5 = inputs
+
+            p6_in = self.p5_to_p6(p5)
+            p7_in = self.p6_to_p7(p6_in)
+            if self.use_p8:
+                p8_in = self.p7_to_p8(p7_in)
+
+            p3_in = self.p3_down_channel(p3)
+            p4_in = self.p4_down_channel(p4)
+            p5_in = self.p5_down_channel(p5)
+
+        else:
+            if self.use_p8:
+                # P3_0, P4_0, P5_0, P6_0, P7_0 and P8_0
+                p3_in, p4_in, p5_in, p6_in, p7_in, p8_in = inputs
+            else:
+                # P3_0, P4_0, P5_0, P6_0 and P7_0
+                p3_in, p4_in, p5_in, p6_in, p7_in = inputs
+
+        if self.use_p8:
+            # P8_0 to P8_2
+
+            # Connections for P7_0 and P8_0 to P7_1 respectively
+            p7_up = self.conv7_up(self.relu(p7_in + self.p7_upsample(p8_in)))
+
+            # Connections for P6_0 and P7_0 to P6_1 respectively
+            p6_up = self.conv6_up(self.relu(p6_in + self.p6_upsample(p7_up)))
+        else:
+            # P7_0 to P7_2
+
+            # Connections for P6_0 and P7_0 to P6_1 respectively
+            p6_up = self.conv6_up(self.relu(p6_in + self.p6_upsample(p7_in)))
+
+        # Connections for P5_0 and P6_1 to P5_1 respectively
+        p5_up = self.conv5_up(self.relu(p5_in + self.p5_upsample(p6_up)))
+
+        # Connections for P4_0 and P5_1 to P4_1 respectively
+        p4_up = self.conv4_up(self.relu(p4_in + self.p4_upsample(p5_up)))
+
+        # Connections for P3_0 and P4_1 to P3_2 respectively
+        p3_out = self.conv3_up(self.relu(p3_in + self.p3_upsample(p4_up)))
+
+        if self.first_time:
+            p4_in = self.p4_down_channel_2(p4)
+            p5_in = self.p5_down_channel_2(p5)
+
+        # Connections for P4_0, P4_1 and P3_2 to P4_2 respectively
+        p4_out = self.conv4_down(
+            self.relu(p4_in + p4_up + self.p4_downsample(p3_out)))
+
+        # Connections for P5_0, P5_1 and P4_2 to P5_2 respectively
+        p5_out = self.conv5_down(
+            self.relu(p5_in + p5_up + self.p5_downsample(p4_out)))
+
+        # Connections for P6_0, P6_1 and P5_2 to P6_2 respectively
+        p6_out = self.conv6_down(
+            self.relu(p6_in + p6_up + self.p6_downsample(p5_out)))
+
+        if self.use_p8:
+            # Connections for P7_0, P7_1 and P6_2 to P7_2 respectively
+            p7_out = self.conv7_down(
+                self.relu(p7_in + p7_up + self.p7_downsample(p6_out)))
+
+            # Connections for P8_0 and P7_2 to P8_2
+            p8_out = self.conv8_down(self.relu(p8_in + self.p8_downsample(p7_out)))
+
+            return p3_out, p4_out, p5_out, p6_out, p7_out, p8_out
+        else:
+            # Connections for P7_0 and P6_2 to P7_2
+            p7_out = self.conv7_down(self.relu(p7_in + self.p7_downsample(p6_out)))
+
+            return p3_out, p4_out, p5_out, p6_out, p7_out

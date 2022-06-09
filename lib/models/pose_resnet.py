@@ -103,7 +103,7 @@ class LitePose(nn.Module):
             deconv_refined.append(UpConv(self.inplanes, planes, k=kernel))
             deconv_raw.append(UpConv(self.channel[-i-2], planes, k=kernel))
             layers.append(nn.BatchNorm2d(planes))
-            layers.append(nn.ReLU(inplace=True))
+            layers.append(nn.ReLU(inplace=False))
             self.inplanes = planes
             deconv_bnrelu.append(nn.Sequential(*layers))
 
