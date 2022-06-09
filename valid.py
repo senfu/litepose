@@ -46,6 +46,11 @@ from utils.transforms import get_final_preds
 from utils.transforms import get_multi_scale_size
 from arch_manager import ArchManager
 
+import math
+import numpy as np
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -122,7 +127,7 @@ def main():
     torch.backends.cudnn.deterministic = cfg.CUDNN.DETERMINISTIC
     torch.backends.cudnn.enabled = cfg.CUDNN.ENABLED
 
-    if cfg.MODEL.NAME == 'pose_mobilenet' or cfg.MODEL.NAME == 'pose_simplenet':
+    if cfg.MODEL.NAME in ['pose_mobilenet', 'pose_simplenet', 'pose_mobilenet_bifpn']:
         arch_manager = ArchManager(cfg)
         cfg_arch = arch_manager.fixed_sample()
         if fixed_arch is not None:
@@ -166,7 +171,7 @@ def main():
 
     data_loader, test_dataset = make_test_dataloader(cfg)
 
-    train_data_loader, train_dataset = make_train_dataloader(cfg)
+    # train_data_loader, train_dataset = make_train_dataloader(cfg)
 
     if cfg.MODEL.NAME == 'pose_hourglass':
         transforms = torchvision.transforms.Compose(
@@ -209,6 +214,13 @@ def main():
                 image_resized, center, scale = resize_align_multi_scale(
                     image, input_size, s, min(cfg.TEST.SCALE_FACTOR)
                 )
+                if image_resized.shape[0] == input_size and image_resized.shape[1] % 128 != 0:
+                    padding = math.ceil(image_resized.shape[1] / 128) * 128 - image_resized.shape[1]
+                    image_resized = np.pad(image_resized, ((0,0), (0,padding), (0,0)))
+                elif image_resized.shape[1] == input_size and image_resized.shape[0] % 128 != 0:
+                    padding = math.ceil(image_resized.shape[0] / 128) * 128 - image_resized.shape[0]
+                    image_resized = np.pad(image_resized, ((0,padding), (0,0), (0,0)))
+
                 image_resized = transforms(image_resized)
                 image_resized = image_resized.unsqueeze(0).cuda()
 
@@ -216,6 +228,8 @@ def main():
                     cfg, model, image_resized, cfg.TEST.FLIP_TEST,
                     cfg.TEST.PROJECT2IMAGE,base_size
                 )
+
+
 
                 final_heatmaps, tags_list = aggregate_results(
                     cfg, s, final_heatmaps, tags_list, heatmaps, tags
@@ -235,11 +249,6 @@ def main():
 
         if cfg.TEST.LOG_PROGRESS:
             pbar.update()
-
-        if i % cfg.PRINT_FREQ == 0:
-            print("finish images: {}".format(i))
-            # prefix = '{}_{}'.format(os.path.join(final_output_dir, 'result_valid'), i)
-            # save_valid_image(image, final_results, '{}.jpg'.format(prefix), dataset=test_dataset.name)
 
         all_preds.append(final_results)
         all_scores.append(scores)
