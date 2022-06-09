@@ -1,0 +1,240 @@
+2022-06-09 01:49:28,196 Namespace(cfg='experiments/coco/mobilenet/mobile_bifpn.yaml', dist_url='tcp://127.0.0.1:23459', gpu=None, opts=[], rank=0, superconfig='mobile_configs/search-XS-bifpn.json', teacher=False, world_size=1)
+2022-06-09 01:49:28,196 AUTO_RESUME: True
+CUDNN:
+  BENCHMARK: True
+  DETERMINISTIC: False
+  ENABLED: True
+DATASET:
+  BASE_SIGMA: 2.0
+  BASE_SIZE: 256.0
+  DATASET: coco_kpt
+  DATASET_TEST: coco
+  DATA_FORMAT: jpg
+  FLIP: 0.5
+  INPUT_SIZE: 256
+  INT_SIGMA: False
+  MAX_NUM_PEOPLE: 30
+  MAX_ROTATION: 30
+  MAX_SCALE: 1.5
+  MAX_TRANSLATE: 40
+  MIN_SCALE: 0.75
+  NUM_JOINTS: 17
+  OUTPUT_SIZE: [64, 128]
+  ROOT: /dev/shm/pose/data/coco
+  SCALE_AWARE_SIGMA: False
+  SCALE_TYPE: short
+  SIGMA: 2
+  TEST: val2017
+  TRAIN: train2017
+  WITH_CENTER: False
+DATA_DIR: 
+DEBUG:
+  DEBUG: True
+  SAVE_BATCH_IMAGES_GT: False
+  SAVE_BATCH_IMAGES_PRED: False
+  SAVE_HEATMAPS_GT: True
+  SAVE_HEATMAPS_PRED: True
+  SAVE_TAGMAPS_PRED: True
+DIST_BACKEND: nccl
+FP16:
+  DYNAMIC_LOSS_SCALE: False
+  ENABLED: False
+  STATIC_LOSS_SCALE: 1.0
+GPUS: (0,)
+LOG_DIR: log
+LOSS:
+  AE_LOSS_TYPE: exp
+  HEATMAPS_LOSS_FACTOR: (1.0, 1.0)
+  NUM_STAGES: 2
+  PULL_LOSS_FACTOR: (0.001, 0.001)
+  PUSH_LOSS_FACTOR: (0.001, 0.001)
+  WITH_AE_LOSS: (True, False)
+  WITH_HEATMAPS_LOSS: (True, True)
+MODEL:
+  EXTRA:
+    FINAL_CONV_KERNEL: 1
+    NUM_DECONV_FILTERS: [64, 48, 32]
+    NUM_DECONV_KERNELS: [4, 4, 4]
+    NUM_DECONV_LAYERS: 3
+    PRETRAINED_LAYERS: ['*']
+  INIT_WEIGHTS: True
+  NAME: pose_mobilenet_bifpn
+  NUM_JOINTS: 17
+  PRETRAINED: 
+  SYNC_BN: False
+  TAG_PER_JOINT: True
+MULTIPROCESSING_DISTRIBUTED: True
+OUTPUT_DIR: output
+PIN_MEMORY: True
+PRINT_FREQ: 50
+RANK: 0
+TEST:
+  ADJUST: True
+  DETECTION_THRESHOLD: 0.1
+  FLIP_TEST: True
+  IGNORE_CENTER: True
+  IGNORE_TOO_MUCH: False
+  IMAGES_PER_GPU: 1
+  LOG_PROGRESS: False
+  MODEL_FILE: 
+  NMS_KERNEL: 5
+  NMS_PADDING: 2
+  PROJECT2IMAGE: True
+  REFINE: True
+  SCALE_FACTOR: [1]
+  TAG_THRESHOLD: 1.0
+  USE_DETECTION_VAL: True
+  WITH_AE: (True, False)
+  WITH_HEATMAPS: (True, True)
+TRAIN:
+  BEGIN_EPOCH: 0
+  CHECKPOINT: 
+  END_EPOCH: 500
+  GAMMA1: 0.99
+  GAMMA2: 0.0
+  IMAGES_PER_GPU: 32
+  LR: 0.004
+  LR_FACTOR: 0.1
+  LR_STEP: [350, 480]
+  MOMENTUM: 0.9
+  NESTEROV: False
+  OPTIMIZER: adam
+  RESUME: False
+  SHUFFLE: True
+  WD: 0.0001
+VERBOSE: True
+WORKERS: 8
+2022-06-09 01:49:31,553 
+Total Parameters: 1.89 M
+----------------------------------------------------------------------------------------------------------------------------------
+Total Multiply Adds: 932.0 MMac
+----------------------------------------------------------------------------------------------------------------------------------
+Number of Layers
+
+2022-06-09 01:49:42,614 => classes: ['__background__', 'person']
+2022-06-09 01:49:42,946 Dataset CocoKeypoints
+    Number of datapoints: 64115
+    Root Location: /dev/shm/pose/data/coco
+    Transforms (if any): None
+    Target Transforms (if any): None
+2022-06-09 01:51:03,515 Epoch: [0][0/501]	Time: 80.564s (80.564s)	Speed: 0.4 samples/s	Data: 74.737s (74.737s)	Stage0-heatmaps: 5.683e-03 (5.683e-03)	Stage1-heatmaps: 3.977e-03 (3.977e-03)	Stage0-push: 1.874e-04 (1.874e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 3.740e-06 (3.740e-06)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:51:28,930 Epoch: [0][50/501]	Time: 0.520s (2.078s)	Speed: 61.5 samples/s	Data: 0.000s (1.466s)	Stage0-heatmaps: 2.629e-03 (3.808e-03)	Stage1-heatmaps: 6.812e-04 (1.381e-03)	Stage0-push: 1.562e-04 (2.160e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.050e-08 (5.403e-07)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:51:54,083 Epoch: [0][100/501]	Time: 0.501s (1.298s)	Speed: 63.9 samples/s	Data: 0.000s (0.740s)	Stage0-heatmaps: 3.414e-03 (3.725e-03)	Stage1-heatmaps: 8.793e-04 (1.168e-03)	Stage0-push: 2.188e-04 (2.206e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 4.908e-11 (2.737e-07)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:52:19,449 Epoch: [0][150/501]	Time: 0.499s (1.036s)	Speed: 64.1 samples/s	Data: 0.000s (0.495s)	Stage0-heatmaps: 4.420e-03 (3.676e-03)	Stage1-heatmaps: 1.141e-03 (1.090e-03)	Stage0-push: 2.656e-04 (2.194e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 3.404e-13 (1.831e-07)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:52:44,811 Epoch: [0][200/501]	Time: 0.480s (0.905s)	Speed: 66.7 samples/s	Data: 0.000s (0.372s)	Stage0-heatmaps: 3.674e-03 (3.621e-03)	Stage1-heatmaps: 9.520e-04 (1.043e-03)	Stage0-push: 2.031e-04 (2.151e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.694e-15 (1.375e-07)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:53:10,503 Epoch: [0][250/501]	Time: 0.478s (0.827s)	Speed: 67.0 samples/s	Data: 0.000s (0.298s)	Stage0-heatmaps: 2.962e-03 (3.594e-03)	Stage1-heatmaps: 7.554e-04 (1.016e-03)	Stage0-push: 1.875e-04 (2.128e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 6.530e-18 (1.101e-07)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:53:35,843 Epoch: [0][300/501]	Time: 0.481s (0.774s)	Speed: 66.6 samples/s	Data: 0.000s (0.249s)	Stage0-heatmaps: 3.448e-03 (3.578e-03)	Stage1-heatmaps: 9.038e-04 (9.980e-04)	Stage0-push: 1.563e-04 (2.125e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 5.505e-20 (9.183e-08)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:54:01,358 Epoch: [0][350/501]	Time: 0.539s (0.736s)	Speed: 59.3 samples/s	Data: 0.000s (0.213s)	Stage0-heatmaps: 4.413e-03 (3.603e-03)	Stage1-heatmaps: 1.143e-03 (9.957e-04)	Stage0-push: 2.500e-04 (2.141e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 5.813e-22 (7.875e-08)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:54:26,809 Epoch: [0][400/501]	Time: 0.514s (0.708s)	Speed: 62.2 samples/s	Data: 0.000s (0.187s)	Stage0-heatmaps: 2.892e-03 (3.603e-03)	Stage1-heatmaps: 7.485e-04 (9.887e-04)	Stage0-push: 1.875e-04 (2.146e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.922e-23 (6.893e-08)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:54:52,095 Epoch: [0][450/501]	Time: 0.510s (0.685s)	Speed: 62.7 samples/s	Data: 0.000s (0.166s)	Stage0-heatmaps: 3.617e-03 (3.602e-03)	Stage1-heatmaps: 9.296e-04 (9.827e-04)	Stage0-push: 1.875e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.252e-23 (6.129e-08)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:55:17,628 Epoch: [0][500/501]	Time: 1.477s (0.668s)	Speed: 19.6 samples/s	Data: 0.000s (0.150s)	Stage0-heatmaps: 3.016e-03 (3.589e-03)	Stage1-heatmaps: 7.709e-04 (9.746e-04)	Stage0-push: 1.897e-04 (2.140e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 9.678e-24 (5.518e-08)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:55:25,157 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 01:56:44,745 Epoch: [1][0/501]	Time: 79.148s (79.148s)	Speed: 0.4 samples/s	Data: 76.960s (76.960s)	Stage0-heatmaps: 3.110e-03 (3.110e-03)	Stage1-heatmaps: 7.993e-04 (7.993e-04)	Stage0-push: 1.563e-04 (1.563e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.388e-23 (1.388e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:57:09,928 Epoch: [1][50/501]	Time: 0.503s (2.046s)	Speed: 63.6 samples/s	Data: 0.001s (1.509s)	Stage0-heatmaps: 2.566e-03 (3.437e-03)	Stage1-heatmaps: 6.627e-04 (8.964e-04)	Stage0-push: 1.406e-04 (2.142e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 9.211e-24 (1.247e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:57:35,222 Epoch: [1][100/501]	Time: 0.499s (1.283s)	Speed: 64.2 samples/s	Data: 0.000s (0.762s)	Stage0-heatmaps: 3.408e-03 (3.547e-03)	Stage1-heatmaps: 8.771e-04 (9.241e-04)	Stage0-push: 2.188e-04 (2.194e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.459e-23 (1.252e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:58:00,507 Epoch: [1][150/501]	Time: 0.497s (1.026s)	Speed: 64.4 samples/s	Data: 0.000s (0.510s)	Stage0-heatmaps: 4.372e-03 (3.562e-03)	Stage1-heatmaps: 1.133e-03 (9.285e-04)	Stage0-push: 2.500e-04 (2.191e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.592e-23 (1.320e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:58:25,788 Epoch: [1][200/501]	Time: 0.502s (0.896s)	Speed: 63.8 samples/s	Data: 0.000s (0.383s)	Stage0-heatmaps: 4.315e-03 (3.526e-03)	Stage1-heatmaps: 1.140e-03 (9.185e-04)	Stage0-push: 2.344e-04 (2.148e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.322e-23 (1.328e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:58:51,012 Epoch: [1][250/501]	Time: 0.480s (0.818s)	Speed: 66.7 samples/s	Data: 0.000s (0.307s)	Stage0-heatmaps: 2.735e-03 (3.513e-03)	Stage1-heatmaps: 6.953e-04 (9.147e-04)	Stage0-push: 1.875e-04 (2.130e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.379e-23 (1.323e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:59:16,320 Epoch: [1][300/501]	Time: 0.502s (0.767s)	Speed: 63.7 samples/s	Data: 0.000s (0.256s)	Stage0-heatmaps: 3.237e-03 (3.517e-03)	Stage1-heatmaps: 8.421e-04 (9.157e-04)	Stage0-push: 1.406e-04 (2.123e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.322e-23 (1.312e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 01:59:41,379 Epoch: [1][350/501]	Time: 0.477s (0.729s)	Speed: 67.1 samples/s	Data: 0.000s (0.220s)	Stage0-heatmaps: 4.653e-03 (3.550e-03)	Stage1-heatmaps: 1.227e-03 (9.249e-04)	Stage0-push: 2.500e-04 (2.138e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.195e-23 (1.318e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:00:06,953 Epoch: [1][400/501]	Time: 0.526s (0.702s)	Speed: 60.8 samples/s	Data: 0.000s (0.192s)	Stage0-heatmaps: 3.231e-03 (3.551e-03)	Stage1-heatmaps: 8.528e-04 (9.255e-04)	Stage0-push: 2.031e-04 (2.144e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.441e-23 (1.289e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:00:32,167 Epoch: [1][450/501]	Time: 0.481s (0.680s)	Speed: 66.6 samples/s	Data: 0.000s (0.171s)	Stage0-heatmaps: 3.395e-03 (3.552e-03)	Stage1-heatmaps: 8.703e-04 (9.256e-04)	Stage0-push: 1.875e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.364e-23 (1.269e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:00:56,676 Epoch: [1][500/501]	Time: 0.413s (0.661s)	Speed: 70.2 samples/s	Data: 0.000s (0.154s)	Stage0-heatmaps: 3.093e-03 (3.542e-03)	Stage1-heatmaps: 7.965e-04 (9.229e-04)	Stage0-push: 1.724e-04 (2.141e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.190e-23 (1.240e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:01:05,685 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:02:24,496 Epoch: [2][0/501]	Time: 78.369s (78.369s)	Speed: 0.4 samples/s	Data: 77.798s (77.798s)	Stage0-heatmaps: 2.958e-03 (2.958e-03)	Stage1-heatmaps: 7.547e-04 (7.547e-04)	Stage0-push: 1.563e-04 (1.563e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.383e-23 (1.383e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:02:49,458 Epoch: [2][50/501]	Time: 0.493s (2.026s)	Speed: 64.9 samples/s	Data: 0.000s (1.526s)	Stage0-heatmaps: 2.551e-03 (3.441e-03)	Stage1-heatmaps: 6.589e-04 (8.987e-04)	Stage0-push: 1.406e-04 (2.096e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 4.718e-24 (1.222e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:03:14,743 Epoch: [2][100/501]	Time: 0.507s (1.273s)	Speed: 63.2 samples/s	Data: 0.000s (0.771s)	Stage0-heatmaps: 3.544e-03 (3.533e-03)	Stage1-heatmaps: 9.096e-04 (9.215e-04)	Stage0-push: 2.188e-04 (2.191e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.180e-23 (1.240e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:03:39,984 Epoch: [2][150/501]	Time: 0.490s (1.019s)	Speed: 65.3 samples/s	Data: 0.001s (0.516s)	Stage0-heatmaps: 4.283e-03 (3.555e-03)	Stage1-heatmaps: 1.102e-03 (9.273e-04)	Stage0-push: 2.344e-04 (2.186e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 1.502e-23 (1.219e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:04:05,252 Epoch: [2][200/501]	Time: 0.501s (0.891s)	Speed: 63.9 samples/s	Data: 0.000s (0.388s)	Stage0-heatmaps: 4.153e-03 (3.518e-03)	Stage1-heatmaps: 1.085e-03 (9.169e-04)	Stage0-push: 2.188e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 9.777e-24 (1.229e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:04:30,392 Epoch: [2][250/501]	Time: 0.515s (0.814s)	Speed: 62.1 samples/s	Data: 0.000s (0.310s)	Stage0-heatmaps: 2.989e-03 (3.505e-03)	Stage1-heatmaps: 7.680e-04 (9.130e-04)	Stage0-push: 1.563e-04 (2.115e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 7.581e-24 (1.133e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:04:55,778 Epoch: [2][300/501]	Time: 0.482s (0.763s)	Speed: 66.4 samples/s	Data: 0.000s (0.259s)	Stage0-heatmaps: 3.527e-03 (3.514e-03)	Stage1-heatmaps: 9.178e-04 (9.158e-04)	Stage0-push: 1.719e-04 (2.117e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.084e-24 (1.011e-23)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:05:21,069 Epoch: [2][350/501]	Time: 0.524s (0.726s)	Speed: 61.1 samples/s	Data: 0.000s (0.222s)	Stage0-heatmaps: 4.693e-03 (3.551e-03)	Stage1-heatmaps: 1.221e-03 (9.258e-04)	Stage0-push: 2.656e-04 (2.129e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 3.523e-24 (9.267e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:05:46,534 Epoch: [2][400/501]	Time: 0.494s (0.699s)	Speed: 64.8 samples/s	Data: 0.001s (0.194s)	Stage0-heatmaps: 2.554e-03 (3.557e-03)	Stage1-heatmaps: 6.538e-04 (9.275e-04)	Stage0-push: 1.875e-04 (2.134e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 3.324e-24 (8.456e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:06:11,748 Epoch: [2][450/501]	Time: 0.520s (0.678s)	Speed: 61.6 samples/s	Data: 0.001s (0.173s)	Stage0-heatmaps: 3.267e-03 (3.556e-03)	Stage1-heatmaps: 8.334e-04 (9.271e-04)	Stage0-push: 1.875e-04 (2.127e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.640e-24 (7.698e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:06:36,266 Epoch: [2][500/501]	Time: 0.418s (0.659s)	Speed: 69.3 samples/s	Data: 0.000s (0.156s)	Stage0-heatmaps: 3.036e-03 (3.552e-03)	Stage1-heatmaps: 7.767e-04 (9.256e-04)	Stage0-push: 1.552e-04 (2.125e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (7.091e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:06:44,803 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:08:05,254 Epoch: [3][0/501]	Time: 79.901s (79.901s)	Speed: 0.4 samples/s	Data: 79.342s (79.342s)	Stage0-heatmaps: 3.251e-03 (3.251e-03)	Stage1-heatmaps: 8.366e-04 (8.366e-04)	Stage0-push: 1.719e-04 (1.719e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.491e-24 (2.491e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:08:30,464 Epoch: [3][50/501]	Time: 0.502s (2.061s)	Speed: 63.8 samples/s	Data: 0.000s (1.556s)	Stage0-heatmaps: 2.447e-03 (3.460e-03)	Stage1-heatmaps: 6.272e-04 (9.012e-04)	Stage0-push: 1.406e-04 (2.145e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (1.632e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:08:55,575 Epoch: [3][100/501]	Time: 0.499s (1.289s)	Speed: 64.2 samples/s	Data: 0.000s (0.786s)	Stage0-heatmaps: 3.402e-03 (3.536e-03)	Stage1-heatmaps: 8.684e-04 (9.208e-04)	Stage0-push: 2.188e-04 (2.200e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 2.868e-24 (1.694e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:09:20,925 Epoch: [3][150/501]	Time: 0.489s (1.030s)	Speed: 65.5 samples/s	Data: 0.000s (0.526s)	Stage0-heatmaps: 4.367e-03 (3.545e-03)	Stage1-heatmaps: 1.130e-03 (9.232e-04)	Stage0-push: 2.500e-04 (2.189e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (1.189e-24)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:09:46,336 Epoch: [3][200/501]	Time: 0.476s (0.900s)	Speed: 67.2 samples/s	Data: 0.001s (0.395s)	Stage0-heatmaps: 3.701e-03 (3.509e-03)	Stage1-heatmaps: 9.573e-04 (9.135e-04)	Stage0-push: 2.031e-04 (2.148e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (8.935e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:10:11,595 Epoch: [3][250/501]	Time: 0.505s (0.822s)	Speed: 63.4 samples/s	Data: 0.000s (0.317s)	Stage0-heatmaps: 3.026e-03 (3.498e-03)	Stage1-heatmaps: 7.774e-04 (9.106e-04)	Stage0-push: 1.719e-04 (2.118e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (7.155e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:10:37,036 Epoch: [3][300/501]	Time: 0.496s (0.770s)	Speed: 64.5 samples/s	Data: 0.000s (0.264s)	Stage0-heatmaps: 3.367e-03 (3.497e-03)	Stage1-heatmaps: 8.756e-04 (9.106e-04)	Stage0-push: 1.719e-04 (2.118e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (5.966e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:11:02,256 Epoch: [3][350/501]	Time: 0.495s (0.732s)	Speed: 64.6 samples/s	Data: 0.000s (0.227s)	Stage0-heatmaps: 4.624e-03 (3.536e-03)	Stage1-heatmaps: 1.209e-03 (9.214e-04)	Stage0-push: 2.656e-04 (2.140e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (5.116e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:11:27,483 Epoch: [3][400/501]	Time: 0.528s (0.704s)	Speed: 60.6 samples/s	Data: 0.000s (0.198s)	Stage0-heatmaps: 3.147e-03 (3.535e-03)	Stage1-heatmaps: 8.207e-04 (9.213e-04)	Stage0-push: 2.031e-04 (2.143e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (4.478e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:11:52,771 Epoch: [3][450/501]	Time: 0.473s (0.682s)	Speed: 67.7 samples/s	Data: 0.000s (0.176s)	Stage0-heatmaps: 3.178e-03 (3.537e-03)	Stage1-heatmaps: 8.125e-04 (9.216e-04)	Stage0-push: 1.719e-04 (2.138e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (3.982e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:12:17,229 Epoch: [3][500/501]	Time: 0.412s (0.662s)	Speed: 70.4 samples/s	Data: 0.000s (0.159s)	Stage0-heatmaps: 3.178e-03 (3.535e-03)	Stage1-heatmaps: 8.194e-04 (9.209e-04)	Stage0-push: 1.897e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (3.585e-25)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:12:24,669 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:13:49,515 Epoch: [4][0/501]	Time: 84.335s (84.335s)	Speed: 0.4 samples/s	Data: 79.027s (79.027s)	Stage0-heatmaps: 3.055e-03 (3.055e-03)	Stage1-heatmaps: 7.832e-04 (7.832e-04)	Stage0-push: 1.563e-04 (1.563e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:14:14,477 Epoch: [4][50/501]	Time: 0.496s (2.143s)	Speed: 64.5 samples/s	Data: 0.000s (1.550s)	Stage0-heatmaps: 2.558e-03 (3.463e-03)	Stage1-heatmaps: 6.586e-04 (9.019e-04)	Stage0-push: 1.406e-04 (2.142e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:14:39,707 Epoch: [4][100/501]	Time: 0.528s (1.332s)	Speed: 60.6 samples/s	Data: 0.000s (0.783s)	Stage0-heatmaps: 3.240e-03 (3.571e-03)	Stage1-heatmaps: 8.339e-04 (9.307e-04)	Stage0-push: 2.188e-04 (2.208e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:15:04,873 Epoch: [4][150/501]	Time: 0.514s (1.058s)	Speed: 62.2 samples/s	Data: 0.000s (0.524s)	Stage0-heatmaps: 4.321e-03 (3.581e-03)	Stage1-heatmaps: 1.116e-03 (9.335e-04)	Stage0-push: 2.344e-04 (2.194e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:15:30,363 Epoch: [4][200/501]	Time: 0.566s (0.921s)	Speed: 56.6 samples/s	Data: 0.000s (0.394s)	Stage0-heatmaps: 3.975e-03 (3.547e-03)	Stage1-heatmaps: 1.048e-03 (9.244e-04)	Stage0-push: 2.188e-04 (2.149e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:15:55,766 Epoch: [4][250/501]	Time: 0.506s (0.839s)	Speed: 63.2 samples/s	Data: 0.000s (0.315s)	Stage0-heatmaps: 2.896e-03 (3.536e-03)	Stage1-heatmaps: 7.382e-04 (9.210e-04)	Stage0-push: 1.406e-04 (2.124e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:16:21,069 Epoch: [4][300/501]	Time: 0.511s (0.784s)	Speed: 62.7 samples/s	Data: 0.000s (0.263s)	Stage0-heatmaps: 3.408e-03 (3.532e-03)	Stage1-heatmaps: 8.890e-04 (9.202e-04)	Stage0-push: 1.719e-04 (2.125e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:16:46,266 Epoch: [4][350/501]	Time: 0.519s (0.744s)	Speed: 61.7 samples/s	Data: 0.000s (0.226s)	Stage0-heatmaps: 4.037e-03 (3.566e-03)	Stage1-heatmaps: 1.039e-03 (9.293e-04)	Stage0-push: 2.500e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:17:11,606 Epoch: [4][400/501]	Time: 0.508s (0.714s)	Speed: 62.9 samples/s	Data: 0.001s (0.198s)	Stage0-heatmaps: 3.332e-03 (3.558e-03)	Stage1-heatmaps: 8.802e-04 (9.273e-04)	Stage0-push: 2.031e-04 (2.143e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:17:36,811 Epoch: [4][450/501]	Time: 0.476s (0.691s)	Speed: 67.3 samples/s	Data: 0.000s (0.176s)	Stage0-heatmaps: 3.600e-03 (3.561e-03)	Stage1-heatmaps: 9.249e-04 (9.281e-04)	Stage0-push: 1.875e-04 (2.138e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:18:01,379 Epoch: [4][500/501]	Time: 0.416s (0.671s)	Speed: 69.7 samples/s	Data: 0.000s (0.158s)	Stage0-heatmaps: 3.122e-03 (3.554e-03)	Stage1-heatmaps: 7.979e-04 (9.259e-04)	Stage0-push: 1.724e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:18:10,274 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:19:30,301 Epoch: [5][0/501]	Time: 79.585s (79.585s)	Speed: 0.4 samples/s	Data: 78.827s (78.827s)	Stage0-heatmaps: 2.950e-03 (2.950e-03)	Stage1-heatmaps: 7.587e-04 (7.587e-04)	Stage0-push: 1.875e-04 (1.875e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:19:55,481 Epoch: [5][50/501]	Time: 0.469s (2.054s)	Speed: 68.3 samples/s	Data: 0.000s (1.546s)	Stage0-heatmaps: 2.443e-03 (3.431e-03)	Stage1-heatmaps: 6.267e-04 (8.936e-04)	Stage0-push: 1.406e-04 (2.148e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:20:20,780 Epoch: [5][100/501]	Time: 0.496s (1.288s)	Speed: 64.5 samples/s	Data: 0.000s (0.781s)	Stage0-heatmaps: 3.387e-03 (3.535e-03)	Stage1-heatmaps: 8.755e-04 (9.208e-04)	Stage0-push: 2.188e-04 (2.218e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:20:45,998 Epoch: [5][150/501]	Time: 0.478s (1.028s)	Speed: 66.9 samples/s	Data: 0.000s (0.523s)	Stage0-heatmaps: 4.207e-03 (3.558e-03)	Stage1-heatmaps: 1.090e-03 (9.269e-04)	Stage0-push: 2.344e-04 (2.201e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:21:11,358 Epoch: [5][200/501]	Time: 0.505s (0.899s)	Speed: 63.3 samples/s	Data: 0.000s (0.393s)	Stage0-heatmaps: 4.146e-03 (3.522e-03)	Stage1-heatmaps: 1.095e-03 (9.172e-04)	Stage0-push: 2.188e-04 (2.151e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:21:36,595 Epoch: [5][250/501]	Time: 0.500s (0.820s)	Speed: 64.0 samples/s	Data: 0.000s (0.315s)	Stage0-heatmaps: 2.955e-03 (3.513e-03)	Stage1-heatmaps: 7.579e-04 (9.149e-04)	Stage0-push: 1.719e-04 (2.130e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:22:01,955 Epoch: [5][300/501]	Time: 0.491s (0.768s)	Speed: 65.2 samples/s	Data: 0.001s (0.262s)	Stage0-heatmaps: 3.524e-03 (3.520e-03)	Stage1-heatmaps: 9.251e-04 (9.165e-04)	Stage0-push: 1.719e-04 (2.123e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:22:27,283 Epoch: [5][350/501]	Time: 0.467s (0.731s)	Speed: 68.5 samples/s	Data: 0.000s (0.225s)	Stage0-heatmaps: 4.969e-03 (3.558e-03)	Stage1-heatmaps: 1.310e-03 (9.271e-04)	Stage0-push: 2.656e-04 (2.141e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:22:52,547 Epoch: [5][400/501]	Time: 0.488s (0.703s)	Speed: 65.5 samples/s	Data: 0.000s (0.197s)	Stage0-heatmaps: 3.424e-03 (3.561e-03)	Stage1-heatmaps: 9.040e-04 (9.279e-04)	Stage0-push: 2.031e-04 (2.144e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:23:17,810 Epoch: [5][450/501]	Time: 0.487s (0.681s)	Speed: 65.7 samples/s	Data: 0.000s (0.175s)	Stage0-heatmaps: 3.451e-03 (3.561e-03)	Stage1-heatmaps: 8.884e-04 (9.278e-04)	Stage0-push: 1.875e-04 (2.141e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:23:42,339 Epoch: [5][500/501]	Time: 0.415s (0.662s)	Speed: 69.9 samples/s	Data: 0.000s (0.158s)	Stage0-heatmaps: 3.116e-03 (3.551e-03)	Stage1-heatmaps: 8.021e-04 (9.250e-04)	Stage0-push: 1.897e-04 (2.142e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:23:50,593 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:25:11,929 Epoch: [6][0/501]	Time: 80.882s (80.882s)	Speed: 0.4 samples/s	Data: 80.318s (80.318s)	Stage0-heatmaps: 3.212e-03 (3.212e-03)	Stage1-heatmaps: 8.246e-04 (8.246e-04)	Stage0-push: 1.875e-04 (1.875e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:25:37,042 Epoch: [6][50/501]	Time: 0.526s (2.078s)	Speed: 60.9 samples/s	Data: 0.000s (1.575s)	Stage0-heatmaps: 2.368e-03 (3.501e-03)	Stage1-heatmaps: 6.015e-04 (9.144e-04)	Stage0-push: 1.250e-04 (2.129e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:26:02,222 Epoch: [6][100/501]	Time: 0.489s (1.299s)	Speed: 65.5 samples/s	Data: 0.000s (0.796s)	Stage0-heatmaps: 3.517e-03 (3.559e-03)	Stage1-heatmaps: 9.044e-04 (9.277e-04)	Stage0-push: 2.188e-04 (2.197e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:26:27,511 Epoch: [6][150/501]	Time: 0.486s (1.036s)	Speed: 65.9 samples/s	Data: 0.000s (0.533s)	Stage0-heatmaps: 4.191e-03 (3.570e-03)	Stage1-heatmaps: 1.083e-03 (9.308e-04)	Stage0-push: 2.344e-04 (2.176e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:26:52,582 Epoch: [6][200/501]	Time: 0.488s (0.903s)	Speed: 65.5 samples/s	Data: 0.001s (0.400s)	Stage0-heatmaps: 4.083e-03 (3.519e-03)	Stage1-heatmaps: 1.067e-03 (9.162e-04)	Stage0-push: 2.344e-04 (2.137e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:27:17,779 Epoch: [6][250/501]	Time: 0.499s (0.824s)	Speed: 64.1 samples/s	Data: 0.000s (0.321s)	Stage0-heatmaps: 3.050e-03 (3.517e-03)	Stage1-heatmaps: 7.841e-04 (9.157e-04)	Stage0-push: 2.031e-04 (2.120e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:27:42,871 Epoch: [6][300/501]	Time: 0.485s (0.770s)	Speed: 66.0 samples/s	Data: 0.000s (0.267s)	Stage0-heatmaps: 3.530e-03 (3.521e-03)	Stage1-heatmaps: 9.197e-04 (9.169e-04)	Stage0-push: 1.563e-04 (2.121e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:28:08,066 Epoch: [6][350/501]	Time: 0.496s (0.732s)	Speed: 64.5 samples/s	Data: 0.000s (0.229s)	Stage0-heatmaps: 4.416e-03 (3.553e-03)	Stage1-heatmaps: 1.148e-03 (9.256e-04)	Stage0-push: 2.500e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:28:33,355 Epoch: [6][400/501]	Time: 0.558s (0.704s)	Speed: 57.3 samples/s	Data: 0.001s (0.201s)	Stage0-heatmaps: 3.087e-03 (3.554e-03)	Stage1-heatmaps: 8.080e-04 (9.259e-04)	Stage0-push: 1.875e-04 (2.141e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:28:58,498 Epoch: [6][450/501]	Time: 0.528s (0.682s)	Speed: 60.6 samples/s	Data: 0.000s (0.179s)	Stage0-heatmaps: 3.486e-03 (3.556e-03)	Stage1-heatmaps: 9.060e-04 (9.263e-04)	Stage0-push: 1.875e-04 (2.136e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:29:22,950 Epoch: [6][500/501]	Time: 0.416s (0.662s)	Speed: 69.7 samples/s	Data: 0.000s (0.161s)	Stage0-heatmaps: 3.098e-03 (3.552e-03)	Stage1-heatmaps: 7.957e-04 (9.251e-04)	Stage0-push: 1.897e-04 (2.138e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:29:32,104 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:30:51,549 Epoch: [7][0/501]	Time: 79.004s (79.004s)	Speed: 0.4 samples/s	Data: 78.441s (78.441s)	Stage0-heatmaps: 3.230e-03 (3.230e-03)	Stage1-heatmaps: 8.348e-04 (8.348e-04)	Stage0-push: 1.563e-04 (1.563e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:31:16,787 Epoch: [7][50/501]	Time: 0.471s (2.044s)	Speed: 67.9 samples/s	Data: 0.001s (1.539s)	Stage0-heatmaps: 2.575e-03 (3.465e-03)	Stage1-heatmaps: 6.558e-04 (9.024e-04)	Stage0-push: 1.563e-04 (2.154e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:31:41,999 Epoch: [7][100/501]	Time: 0.494s (1.282s)	Speed: 64.8 samples/s	Data: 0.001s (0.777s)	Stage0-heatmaps: 3.292e-03 (3.561e-03)	Stage1-heatmaps: 8.482e-04 (9.275e-04)	Stage0-push: 1.875e-04 (2.191e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:32:07,253 Epoch: [7][150/501]	Time: 0.486s (1.025s)	Speed: 65.9 samples/s	Data: 0.000s (0.520s)	Stage0-heatmaps: 4.395e-03 (3.563e-03)	Stage1-heatmaps: 1.135e-03 (9.286e-04)	Stage0-push: 2.656e-04 (2.184e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:32:32,572 Epoch: [7][200/501]	Time: 0.523s (0.896s)	Speed: 61.2 samples/s	Data: 0.000s (0.391s)	Stage0-heatmaps: 3.640e-03 (3.531e-03)	Stage1-heatmaps: 9.568e-04 (9.195e-04)	Stage0-push: 2.344e-04 (2.146e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:32:57,884 Epoch: [7][250/501]	Time: 0.489s (0.818s)	Speed: 65.4 samples/s	Data: 0.000s (0.313s)	Stage0-heatmaps: 2.717e-03 (3.519e-03)	Stage1-heatmaps: 6.914e-04 (9.164e-04)	Stage0-push: 1.563e-04 (2.131e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:33:23,154 Epoch: [7][300/501]	Time: 0.556s (0.766s)	Speed: 57.6 samples/s	Data: 0.000s (0.261s)	Stage0-heatmaps: 3.624e-03 (3.525e-03)	Stage1-heatmaps: 9.434e-04 (9.180e-04)	Stage0-push: 1.875e-04 (2.134e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:33:48,502 Epoch: [7][350/501]	Time: 0.508s (0.729s)	Speed: 63.0 samples/s	Data: 0.001s (0.224s)	Stage0-heatmaps: 4.583e-03 (3.567e-03)	Stage1-heatmaps: 1.191e-03 (9.293e-04)	Stage0-push: 2.656e-04 (2.155e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:34:13,845 Epoch: [7][400/501]	Time: 0.522s (0.701s)	Speed: 61.4 samples/s	Data: 0.000s (0.196s)	Stage0-heatmaps: 3.428e-03 (3.568e-03)	Stage1-heatmaps: 9.122e-04 (9.299e-04)	Stage0-push: 2.031e-04 (2.155e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:34:39,065 Epoch: [7][450/501]	Time: 0.482s (0.680s)	Speed: 66.5 samples/s	Data: 0.000s (0.174s)	Stage0-heatmaps: 3.362e-03 (3.571e-03)	Stage1-heatmaps: 8.616e-04 (9.305e-04)	Stage0-push: 1.719e-04 (2.148e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:35:03,602 Epoch: [7][500/501]	Time: 0.413s (0.661s)	Speed: 70.3 samples/s	Data: 0.000s (0.157s)	Stage0-heatmaps: 3.143e-03 (3.560e-03)	Stage1-heatmaps: 8.148e-04 (9.273e-04)	Stage0-push: 1.897e-04 (2.150e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:35:11,779 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:36:34,692 Epoch: [8][0/501]	Time: 82.472s (82.472s)	Speed: 0.4 samples/s	Data: 81.919s (81.919s)	Stage0-heatmaps: 3.305e-03 (3.305e-03)	Stage1-heatmaps: 8.539e-04 (8.539e-04)	Stage0-push: 1.719e-04 (1.719e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:36:59,693 Epoch: [8][50/501]	Time: 0.491s (2.107s)	Speed: 65.2 samples/s	Data: 0.000s (1.607s)	Stage0-heatmaps: 2.508e-03 (3.469e-03)	Stage1-heatmaps: 6.404e-04 (9.036e-04)	Stage0-push: 1.406e-04 (2.151e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:37:24,790 Epoch: [8][100/501]	Time: 0.515s (1.313s)	Speed: 62.1 samples/s	Data: 0.000s (0.812s)	Stage0-heatmaps: 3.543e-03 (3.576e-03)	Stage1-heatmaps: 9.076e-04 (9.312e-04)	Stage0-push: 2.188e-04 (2.211e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:37:49,881 Epoch: [8][150/501]	Time: 0.477s (1.044s)	Speed: 67.1 samples/s	Data: 0.001s (0.543s)	Stage0-heatmaps: 3.998e-03 (3.570e-03)	Stage1-heatmaps: 1.029e-03 (9.299e-04)	Stage0-push: 2.813e-04 (2.194e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:38:15,204 Epoch: [8][200/501]	Time: 0.500s (0.910s)	Speed: 64.0 samples/s	Data: 0.000s (0.408s)	Stage0-heatmaps: 3.994e-03 (3.530e-03)	Stage1-heatmaps: 1.042e-03 (9.190e-04)	Stage0-push: 2.188e-04 (2.152e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:38:40,314 Epoch: [8][250/501]	Time: 0.490s (0.829s)	Speed: 65.3 samples/s	Data: 0.000s (0.327s)	Stage0-heatmaps: 2.856e-03 (3.517e-03)	Stage1-heatmaps: 7.324e-04 (9.153e-04)	Stage0-push: 1.875e-04 (2.128e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:39:05,659 Epoch: [8][300/501]	Time: 0.517s (0.776s)	Speed: 61.9 samples/s	Data: 0.000s (0.273s)	Stage0-heatmaps: 3.467e-03 (3.522e-03)	Stage1-heatmaps: 9.139e-04 (9.166e-04)	Stage0-push: 1.719e-04 (2.132e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:39:31,106 Epoch: [8][350/501]	Time: 0.490s (0.738s)	Speed: 65.3 samples/s	Data: 0.000s (0.234s)	Stage0-heatmaps: 4.244e-03 (3.556e-03)	Stage1-heatmaps: 1.106e-03 (9.262e-04)	Stage0-push: 2.656e-04 (2.151e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:39:56,530 Epoch: [8][400/501]	Time: 0.520s (0.709s)	Speed: 61.5 samples/s	Data: 0.000s (0.205s)	Stage0-heatmaps: 3.201e-03 (3.556e-03)	Stage1-heatmaps: 8.427e-04 (9.263e-04)	Stage0-push: 2.031e-04 (2.153e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:40:21,728 Epoch: [8][450/501]	Time: 0.478s (0.686s)	Speed: 66.9 samples/s	Data: 0.000s (0.182s)	Stage0-heatmaps: 3.580e-03 (3.555e-03)	Stage1-heatmaps: 9.300e-04 (9.260e-04)	Stage0-push: 1.875e-04 (2.145e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:40:46,298 Epoch: [8][500/501]	Time: 0.420s (0.667s)	Speed: 69.0 samples/s	Data: 0.000s (0.164s)	Stage0-heatmaps: 3.208e-03 (3.541e-03)	Stage1-heatmaps: 8.256e-04 (9.220e-04)	Stage0-push: 1.897e-04 (2.143e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:40:54,238 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:42:16,555 Epoch: [9][0/501]	Time: 81.863s (81.863s)	Speed: 0.4 samples/s	Data: 78.712s (78.712s)	Stage0-heatmaps: 3.329e-03 (3.329e-03)	Stage1-heatmaps: 8.565e-04 (8.565e-04)	Stage0-push: 1.719e-04 (1.719e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:42:41,748 Epoch: [9][50/501]	Time: 0.540s (2.099s)	Speed: 59.3 samples/s	Data: 0.000s (1.544s)	Stage0-heatmaps: 2.564e-03 (3.435e-03)	Stage1-heatmaps: 6.566e-04 (8.933e-04)	Stage0-push: 1.563e-04 (2.151e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:43:06,872 Epoch: [9][100/501]	Time: 0.497s (1.309s)	Speed: 64.4 samples/s	Data: 0.000s (0.780s)	Stage0-heatmaps: 3.533e-03 (3.536e-03)	Stage1-heatmaps: 9.126e-04 (9.197e-04)	Stage0-push: 2.188e-04 (2.212e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:43:31,966 Epoch: [9][150/501]	Time: 0.510s (1.042s)	Speed: 62.8 samples/s	Data: 0.000s (0.522s)	Stage0-heatmaps: 4.139e-03 (3.543e-03)	Stage1-heatmaps: 1.063e-03 (9.217e-04)	Stage0-push: 2.344e-04 (2.185e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:43:57,302 Epoch: [9][200/501]	Time: 0.494s (0.908s)	Speed: 64.7 samples/s	Data: 0.000s (0.392s)	Stage0-heatmaps: 4.254e-03 (3.507e-03)	Stage1-heatmaps: 1.113e-03 (9.121e-04)	Stage0-push: 2.344e-04 (2.139e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:44:22,654 Epoch: [9][250/501]	Time: 0.523s (0.829s)	Speed: 61.2 samples/s	Data: 0.000s (0.314s)	Stage0-heatmaps: 2.947e-03 (3.487e-03)	Stage1-heatmaps: 7.514e-04 (9.065e-04)	Stage0-push: 1.875e-04 (2.111e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:44:47,978 Epoch: [9][300/501]	Time: 0.505s (0.775s)	Speed: 63.3 samples/s	Data: 0.000s (0.262s)	Stage0-heatmaps: 3.518e-03 (3.488e-03)	Stage1-heatmaps: 9.210e-04 (9.070e-04)	Stage0-push: 1.875e-04 (2.111e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:45:13,316 Epoch: [9][350/501]	Time: 0.518s (0.737s)	Speed: 61.8 samples/s	Data: 0.000s (0.225s)	Stage0-heatmaps: 4.847e-03 (3.524e-03)	Stage1-heatmaps: 1.273e-03 (9.171e-04)	Stage0-push: 2.656e-04 (2.127e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:45:38,770 Epoch: [9][400/501]	Time: 0.495s (0.708s)	Speed: 64.6 samples/s	Data: 0.000s (0.197s)	Stage0-heatmaps: 3.300e-03 (3.530e-03)	Stage1-heatmaps: 8.693e-04 (9.190e-04)	Stage0-push: 2.031e-04 (2.133e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:46:04,104 Epoch: [9][450/501]	Time: 0.570s (0.686s)	Speed: 56.2 samples/s	Data: 0.000s (0.175s)	Stage0-heatmaps: 3.558e-03 (3.537e-03)	Stage1-heatmaps: 9.109e-04 (9.206e-04)	Stage0-push: 1.875e-04 (2.130e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:46:28,699 Epoch: [9][500/501]	Time: 0.414s (0.667s)	Speed: 70.0 samples/s	Data: 0.000s (0.158s)	Stage0-heatmaps: 3.519e-03 (3.535e-03)	Stage1-heatmaps: 9.081e-04 (9.200e-04)	Stage0-push: 1.897e-04 (2.133e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
+2022-06-09 02:46:36,359 => saving checkpoint to output/coco_kpt/pose_mobilenet_bifpn/mobile_bifpn
+2022-06-09 02:47:58,880 Epoch: [10][0/501]	Time: 82.069s (82.069s)	Speed: 0.4 samples/s	Data: 81.512s (81.512s)	Stage0-heatmaps: 2.934e-03 (2.934e-03)	Stage1-heatmaps: 7.501e-04 (7.501e-04)	Stage0-push: 1.719e-04 (1.719e-04)	Stage1-push: 0.000e+00 (0.000e+00)	Stage0-pull: 0.000e+00 (0.000e+00)	Stage1-pull: 0.000e+00 (0.000e+00)	
